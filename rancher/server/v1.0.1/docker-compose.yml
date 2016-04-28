@@ -1,0 +1,27 @@
+letsencrypt:
+  image: 'jrcs/letsencrypt-nginx-proxy-companion:stable'
+  environment:
+    - LETSENCRYPT_HOST=${VIRTUAL_HOST}
+  volumes:
+    - /etc/nginx/certs
+    - /etc/nginx/vhost.d
+    - /usr/share/nginx/html
+    - '/var/run/docker.sock:/var/run/docker.sock:ro'
+  volumes_from:
+    - nginx-proxy
+nginx-proxy:
+  image: 'jwilder/nginx-proxy:0.2.0'
+  ports:
+    - '80:80'
+    - '443:443'
+  volumes:
+    - /etc/nginx/vhost.d
+    - /usr/share/nginx/html
+    - '/var/run/docker.sock:/tmp/docker.sock:ro'
+rancher-server:
+  image: 'rancher/server:v1.0.1'
+  environment:
+    - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+    - LETSENCRYPT_HOST=${VIRTUAL_HOST}
+    - VIRTUAL_HOST=${VIRTUAL_HOST}
+    - VIRTUAL_PORT=8080
